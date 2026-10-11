@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครเข้าแคลน</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: linear-gradient(135deg, #1a1a2e, #16213e); min-height: 100vh; color: #fff; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: rgba(255,255,255,0.05); border-radius: 16px; padding: 30px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+        h1, h2 { text-align: center; margin-bottom: 30px; color: #ffd700; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from {opacity:0; transform: translateY(10px);} to {opacity:1; transform: translateY(0);} }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 500; }
+        input[type="text"], textarea, select { width: 100%; padding: 12px; border: none; border-radius: 8px; background: rgba(255,255,255,0.1); color: #fff; font-size: 16px; }
+        input:focus, textarea:focus { outline: 2px solid #ffd700; }
+        .radio-group { display: flex; gap: 20px; margin: 10px 0; }
+        .radio-item { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .hidden-field { display: none; margin-top: 15px; }
+        .hidden-field.show { display: block; }
+        .upload-box { border: 2px dashed #555; border-radius: 10px; padding: 25px; text-align: center; margin: 10px 0; cursor: pointer; transition: 0.3s; }
+        .upload-box:hover { border-color: #ffd700; background: rgba(255,215,0,0.05); }
+        .preview-img { max-width: 150px; margin: 10px; border-radius: 8px; }
+        .btn { padding: 14px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.3s; margin: 10px 5px; }
+        .btn-next { background: #ffd700; color: #000; }
+        .btn-next:hover { background: #ffed4e; transform: translateY(-2px); }
+        .btn-back { background: #444; color: #fff; }
+        .img-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<!-- หน้า 1 -->
+<div class="page active" id="page1">
+    <div class="container">
+        <h1>📋 สมัครเข้าแคลน</h1>
+        
+        <div class="form-group">
+            <label>1. ชื่อในเกม</label>
+            <input type="text" id="gameName" placeholder="กรอกชื่อในเกมของคุณ">
+        </div>
+
+        <div class="form-group">
+            <label>2. เคยอยู่แคลนไหนมาก่อนหรือไม่?</label>
+            <div class="radio-group">
+                <label class="radio-item">
+                    <input type="radio" name="oldClan" value="เคย" onchange="toggleClanField()"> เคย
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="oldClan" value="ไม่เคย" checked onchange="toggleClanField()"> ไม่เคย
+                </label>
+            </div>
+            
+            <div class="hidden-field" id="clanDetailField">
+                <label>ระบุแคลนที่เคยอยู่:</label>
+                <input type="text" id="oldClanDetail" placeholder="เช่น แคลนสายฟ้า...">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>3. อยากเข้าแคลนของเราเพราะอะไร?</label>
+            <textarea id="reason" rows="4" placeholder="เขียนเหตุผล..."></textarea>
+        </div>
+
+        <button class="btn btn-next" onclick="goPage(2)">ถัดไป →</button>
+    </div>
+</div>
+
+<!-- หน้า 2 อัปโหลดรูป -->
+<div class="page" id="page2">
+    <div class="container">
+        <h1>📤 อัปโหลดหลักฐาน</h1>
+
+        <div class="form-group">
+            <label>1. รูปตัวละครทั้งหมดที่ไม่ใช่สล๊อด</label>
+            <div class="upload-box" onclick="document.getElementById('charImg').click()">
+                คลิกเพื่อเลือกรูป
+                <input type="file" id="charImg" accept="image/*" multiple style="display:none" onchange="storeImages(this, 'char')">
+                <div id="charPreview" class="img-grid"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>2. รูปโทเท็มของคุณทั้งหมด</label>
+            <div class="upload-box" onclick="document.getElementById('totemImg').click()">
+                คลิกเพื่อเลือกรูป
+                <input type="file" id="totemImg" accept="image/*" multiple style="display:none" onchange="storeImages(this, 'totem')">
+                <div id="totemPreview" class="img-grid"></div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>3. รูปสล๊อดตัวทั้งหมด</label>
+            <div class="upload-box" onclick="document.getElementById('slotImg').click()">
+                คลิกเพื่อเลือกรูป
+                <input type="file" id="slotImg" accept="image/*" multiple style="display:none" onchange="storeImages(this, 'slot')">
+                <div id="slotPreview" class="img-grid"></div>
+            </div>
+        </div>
+
+        <button class="btn btn-back" onclick="goPage(1)">← ย้อนกลับ</button>
+        <button class="btn btn-next" onclick="submitForm()">ส่งใบสมัคร</button>
+    </div>
+</div>
+
+<!-- หน้า 3 สำเร็จ -->
+<div class="page" id="page3">
+    <div class="container" style="text-align:center;">
+        <h1>✅ สมัครเสร็จสิ้น!</h1>
+        <p style="font-size:18px; margin:20px 0;">ขอบคุณที่สมัคร<br>รออนุมัติจากแอดมินครับ</p>
+        <button class="btn btn-next" onclick="resetForm()">สมัครใหม่</button>
+    </div>
+</div>
+
+<script>
+let tempImages = { char: [], totem: [], slot: [] };
+
+function toggleClanField() {
+    const val = document.querySelector('input[name="oldClan"]:checked').value;
+    document.getElementById('clanDetailField').classList.toggle('show', val === 'เคย');
+}
+
+function goPage(num) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(`page${num}`).classList.add('active');
+    window.scrollTo(0,0);
+}
+
+function storeImages(input, type) {
+    const preview = document.getElementById(`${type}Preview`);
+    preview.innerHTML = '';
+    tempImages[type] = [];
+    
+    if (input.files) {
+        Array.from(input.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                tempImages[type].push(e.target.result);
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'preview-img';
+                preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+function submitForm() {
+    const gameName = document.getElementById('gameName').value.trim();
+    const oldClan = document.querySelector('input[name="oldClan"]:checked')?.value || '';
+    const oldClanDetail = oldClan === 'เคย' ? document.getElementById('oldClanDetail').value.trim() : '-';
+    const reason = document.getElementById('reason').value.trim();
+
+    if (!gameName || !reason) {
+        alert('กรอกข้อมูลให้ครบถ้วน!');
+        return;
+    }
+
+    const app = {
+        id: Date.now(),
+        gameName,
+        oldClan,
+        oldClanDetail,
+        reason,
+        images: { ...tempImages },
+        status: 'pending',
+        time: new Date().toLocaleString('th-TH')
+    };
+
+    const apps = JSON.parse(localStorage.getItem('clanApps') || '[]');
+    apps.unshift(app);
+    localStorage.setItem('clanApps', JSON.stringify(apps));
+    
+    goPage(3);
+}
+
+function resetForm() {
+    document.getElementById('gameName').value = '';
+    document.querySelector('input[value="ไม่เคย"]').checked = true;
+    document.getElementById('clanDetailField').classList.remove('show');
+    document.getElementById('oldClanDetail').value = '';
+    document.getElementById('reason').value = '';
+    ['char','totem','slot'].forEach(t => {
+        document.getElementById(`${t}Preview`).innerHTML = '';
+        tempImages[t] = [];
+    });
+    goPage(1);
+}
+</script>
+
+</body>
+</html>
